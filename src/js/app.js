@@ -19,9 +19,10 @@ function getWeather(self) {
 	}).done(function(data){
 		self.myLocation(data.name + " - " + data.weather[0].description);
 		self.temp(data.main.temp + "ºC");
+	}).fail(function( jqXHR, textStatus, errorThrown ){
+		alert("ERRO api openweather: " + errorThrown);
 	});
 }
-
 
 // função acionada ao carregar o javascript do google maps
 function initMap() {
@@ -50,9 +51,15 @@ function initMap() {
 				infowindow.setContent("Minha Localização");
 				infowindow.open(map, this);
 			});
+			var viewModel = new MyViewModel();
 			
+			// pega a temperatura
+			getWeather(viewModel);
+			// pega os restaurantes
+			getPlaces(viewModel);
+	
 			// inicializa o knockout
-			ko.applyBindings(new MyViewModel());
+			ko.applyBindings(viewModel);
 		}, function(error){ // callback de erro
 		   alert('Erro ao obter localização!');
 		   console.log('Erro ao obter localização.', error);
@@ -60,6 +67,10 @@ function initMap() {
 	} else {
 		alert('Navegador não suporta Geolocalização!');
 	}			
+}
+
+function googleError() {
+	alert("Erro ao utilizar a api do google maps");
 }
 
 // adiciona os markers dos locais no mapa
@@ -94,7 +105,7 @@ function createMarker(place, self)
 			content : content
 		}); 
 	}).fail(function( jqXHR, textStatus, errorThrown ){
-		alert("ERRO: " + errorThrown);
+		alert("ERRO api foursquare: " + errorThrown);
 	}).always(function(){
 		// inicializa a função de click no link no menu lateral
 		clickLink();
@@ -113,14 +124,7 @@ function clearMarkers() {
 	setMapOnAll(null, markers);
 }
 
-function MyViewModel() {
-	var self = this;
-	
-	// pega a temperatura
-	getWeather(self);
-	
-	self.locations = ko.observableArray([]);
-	
+function getPlaces(self) {
 	// options para a chamada do google places
 	var request = {
 		location: {lat: latitude, lng: longitude},
@@ -139,7 +143,13 @@ function MyViewModel() {
 			}
 		}
 	});
-					
+}
+
+function MyViewModel() {
+	var self = this;
+	
+	self.locations = ko.observableArray([]);
+		
 	// parâmetro do filtro de procura
 	self.paramFilter = ko.observable();
 	

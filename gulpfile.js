@@ -21,7 +21,7 @@ gulp.task('uglify', function() {
 // minify html
 gulp.task('minify-html', function() {
   return gulp.src('src/*.html')
-	.pipe(inlineCss())
+	//.pipe(inlineCss())
     .pipe(htmlmin({collapseWhitespace: true, removeComments:true}))
     .pipe(gulp.dest('dist'));
 });
